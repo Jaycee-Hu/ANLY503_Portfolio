@@ -61,7 +61,8 @@ figure <- ggarrange(trans_plt, ggarrange(
   loan_plt, credit_plt, ncol = 2), nrow = 2)
 figure
 ```
-
+$~$
+$~$
 
 From the graph above, we could find that most of accounts don't have credit cards, and most of them don't have loan neither. The distribution of average balance shows that the average balance for all accounts are between 20000 and 60000.
 
@@ -146,6 +147,9 @@ $~$
 
 **3. Is there a relationship between a good or bad loan and the time between an account is opened and the loan is created? Is there a specific set of accounts that seem to be at higher or lower risk of defaulting?**
 
+$~$
+$~$
+
 ![](task 3.jpg)
 
 $~$
@@ -197,8 +201,9 @@ $~$
 $~$
 $~$
 
-**5.Explore the validity of the data for the case whether or not an account has a credit card and whether or not they have associated credit card transactions. Is there anything worth noting?**
-
+**5. Explore the validity of the data for the case whether or not an account has a credit card and whether or not they have associated credit card transactions. Is there anything worth noting?**
+$~$
+$~$
 ```{r,echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
 acct_credit <- acct %>% 
   filter(credit_cards >= 1) %>%
