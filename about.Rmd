@@ -1,5 +1,12 @@
 ---
-title: "About This Website"
+title: "About Me"
 ---
 
-More about this website.
+- __Name:__ Xin(Jaycee) Hu
+- __Ocupation:__ "Student from Georgetown University"
+- __Hobbies:__ Photography & Netflix & Learning Data science instead of studying for exams
+
+Here is a photo showing my favorite life state.
+
+![](spa day snooze.jpg)
+
