@@ -11,7 +11,7 @@
 
 
 
-<title>My Website</title>
+<title>Network Graph</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -318,14 +318,20 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">My Website</h1>
+<h1 class="title toc-ignore">Network Graph</h1>
 
 </div>
 
 
-<p>Hello, Website!</p>
-<p>For more information about simple R Markdown websites, please read the documentation at <a href="https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html" class="uri">https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html</a>.</p>
-<p>Please also note that simple R Markdown sites are <em>not</em> based on <strong>blogdown</strong>. They are probably good for websites with only a few Rmd documents. For larger-scale and more sophisticated websites (such as blogs), you may want to use <strong>blogdown</strong> instead: <a href="https://github.com/rstudio/blogdown" class="uri">https://github.com/rstudio/blogdown</a>.</p>
+<p>In this assignment I visualize the flow of people between different states in the United States over the period of one year, using network graphs.</p>
+<p>I choose New York, Texas, Ohio and DC as the origin states (where people lived the previous year) for this visualization, and show graphically the relative numbers of people that moved to the top 10 destination states (current state, in the data set) from each of the origin states. For this assignment, I don't consider migrations to other countries or US Territories (Puerto Rico, Guam and others), but only consider migrations to the 50 states and District of Columbia.</p>
+<p>The data used is State_to_State_Migrations_Table_2018.xls, which contains a single sheet with all the relevant data from the American Community Survey for the year 2018.</p>
+<p><span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span> <img src="A7_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span></p>
+<p><strong>New York</strong>: People originally lived in New York tend to move to New Jersey, Florida, Pennsylvania and California. I guess the reason they choose New Jersey is the distance, and the reason they choose Florida and California is the climate advantage in these two states. Also, we could see New York has a large floating population. People love moving to other states. <span class="math inline">\(~\)</span></p>
+<p><strong>Ohio</strong>: Top states people in Ohio move to are Florida, Pennsylvania, Indiana, etc. I think from the lack of state income tax to the sunny weather, there are plenty of reasons to love calling Florida home. Its diverse population, delectable food and many theme parks and attractions also make it a particularly interesting place to live. <span class="math inline">\(~\)</span></p>
+<p><strong>Texas</strong>: People in Texas move to many states, which include California, Colorado, Florida, Georgia, Oklahoma, Louisiana, etc. <span class="math inline">\(~\)</span></p>
+<p><strong>District of Columbia</strong>: Most people from DC move to Virginia and Maryland since these two states are close to DC. Also, there are a portion of people move to California.</p>
 
 
 

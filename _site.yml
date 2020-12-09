@@ -11,6 +11,8 @@ navbar:
       href: A5.html
     - text: "A6 Geographical Visuals"
       href: A6.html
+    - text: "A7 Network Graph"
+      href: A7.html
     - text: "Final Project"
       href: Dashboard.html
   right:

@@ -1,0 +1,95 @@
+---
+title: "Network Graph"
+---
+
+In this assignment I visualize the flow of people between different states in the United States over the period of one year, using network graphs.
+
+I choose New York, Texas, Ohio and DC as the origin states (where people lived the previous year) for this visualization, and show graphically the relative numbers of people that moved to the top 10 destination states (current state, in the data set) from each of the origin states. For this assignment, I don't consider migrations to other countries or US Territories (Puerto Rico, Guam and others), but only consider migrations to the 50 states and District of Columbia.
+
+The data used is State_to_State_Migrations_Table_2018.xls, which contains a single sheet with all the relevant data from the American Community Survey for the year 2018. 
+
+$~$
+$~$
+```{r,echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(igraph)
+library(circlize)
+library(RColorBrewer)
+
+
+df <- readxl::read_excel('/Users/huxin/Desktop/ANLY 503/A7 - Network/State_to_State_Migrations_Table_2018.xls')[c(6:43,48:78),]
+df <- df[,10:ncol(df)] 
+df <- transpose(df)
+
+# Delete columns with all NAs
+df <- df[,colSums(is.na(df)) < nrow(df)]
+df <- as.data.frame(df)
+target <- df[3,]
+
+# Delete MOE data
+df1 <- filter(df, V2 != "MOE")
+
+# Change column names
+df1 <- rbind(target,df1)
+header.true <- function(df) {
+  names(df) <- as.character(unlist(df[1,]))
+  df[-1,]
+}
+df1 <- header.true(df1)
+df1 <- df1[,-2]
+names(df1)[1] <- "source"
+
+# Delete Footnotes and United states count
+df1 <- df1[, !(colnames(df1) %in% c("Footnotes:","United States2"))]
+
+
+#### Create the Dataframe with three columns (Edge List)
+
+df2 <- df1 %>% 
+  filter(source %in% c('Texas','New York','Ohio','District of Columbia')) %>%
+  gather(target, count, -source) %>%
+  filter(!is.na(count))
+
+df2$count <- as.numeric(as.character(df2$count))
+
+# Select top 10 states that people moved to from that state 
+links <- df2 %>% group_by(source) %>% slice_max(order_by = count, n = 10)
+links[links$source == 'Texas',]
+
+#### Create a graph object 
+
+net <- graph_from_data_frame(d = links, vertices = unique(c(links$source, links$target)), directed = T)
+
+
+chordDiagram(links, annotationTrack = "grid", preAllocateTracks = list(track.height = 0.1))
+  circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+  col = rand_color(50,luminosity = "bright")
+  xlim = get.cell.meta.data("xlim")
+  xplot = get.cell.meta.data("xplot")
+  ylim = get.cell.meta.data("ylim")
+  sector.name = get.cell.meta.data("sector.index")
+  circos.text(mean(xlim), ylim[1], sector.name, facing = "clockwise",
+                niceFacing = TRUE, adj = c(0, 0.5), cex = 0.5)
+}, bg.border = NA)
+ 
+title("Migration pattern 2018",cex = 0.1)
+```
+
+$~$
+$~$
+$~$
+
+**New York**: People originally lived in New York tend to move to New Jersey, Florida, Pennsylvania and California. I guess the reason they choose New Jersey is the distance, and the reason they choose Florida and California is the climate advantage in these two states. Also, we could see New York has a large floating population. People love moving to other states.
+$~$
+
+**Ohio**: Top states people in Ohio move to are Florida, Pennsylvania, Indiana, etc. I think from the lack of state income tax to the sunny weather, there are plenty of reasons to love calling Florida home. Its diverse population, delectable food and many theme parks and attractions also make it a particularly interesting place to live.
+$~$
+
+**Texas**: People in Texas move to many states, which include California, Colorado, Florida, Georgia, Oklahoma, Louisiana, etc. 
+$~$
+
+**District of Columbia**: Most people from DC move to Virginia and Maryland since these two states are close to DC. Also, there are a portion of people move to California.
+
+
