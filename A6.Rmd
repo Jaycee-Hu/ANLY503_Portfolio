@@ -1,0 +1,320 @@
+---
+title: "Geospatial Visualization"
+---
+
+$~$
+In this assignment I will visualize historical US election data and unemployment rates across US counties using choropleths. I will create three 3x2 panels of choropleths, one each for Texas, California and Pennsylvania. The rows will correspond to the years 2008, 2012 and 2016, and the columns will correspond to the percent of the vote received either the Democratic or Republican candidate for president (your choice), and the unemployment rate in that year.
+
+There are three data used for this assignment:
+
+- The file countypres_2000-2016.csv contains the results of each presidential election from 2000 to 2016 by county.(Source: [MIT Election Data and Science Lab, 2018, "County Presidential Election Returns 2000-2016", Harvard Datavers](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ))
+- The file Unemployment.xls contains unemployment rates by county for the years 2000-2019. (Source: [USDA Economic Research Service, 2020](https://www.ers.usda.gov/data-products/county-level-data-sets/download-data/))
+- Shapefiles for the US with county boundaries are in tl_2019_us_county-1.zip
+
+$~$
+$~$
+
+### **For California**
+```{r,echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+#### Data Extration for votes dataset
+votes <- read.csv('/Users/huxin/Desktop/ANLY 503/A6 - Geospatial/countypres_2000-2016.csv')
+
+votes_clean <- votes %>%
+  filter(year %in% c(2008, 2012, 2016)) %>%
+  filter(state %in% c("Texas","California","Pennsylvania")) %>%
+  group_by(year,state, county,FIPS,party) %>%
+  summarise(percent = sum(candidatevotes)/totalvotes)
+
+votes_clean <- votes_clean[votes_clean$party == "republican", ]
+votes_clean <- votes_clean %>% filter_all(any_vars(!is.na(.)))
+
+votes_clean$FIPS <- formatC(votes_clean$FIPS, width = 5, format = "d", flag = "0")
+votes_clean[votes_clean$year == 2008,]
+
+#### Data Extration for unemployment dataset
+unemploy <- read.csv('/Users/huxin/Desktop/ANLY 503/A6 - Geospatial/Unemployment.csv')
+
+unemploy_clean <- unemploy %>%
+  filter(Stabr %in% c("CA", "TX", "PA")) %>%
+  filter(!(area_name %in% c("Texas","California","Pennsylvania"))) %>%
+  select(FIPStxt,Stabr,area_name,Unemployment_rate_2008,Unemployment_rate_2012,Unemployment_rate_2016)
+
+unemploy_clean$FIPStxt <- formatC(unemploy_clean$FIPStxt, width = 5, format = "d", flag = "0")
+
+#### Shape Files & Match FPcode
+shape <- sf::st_read('/Users/huxin/Desktop/ANLY 503/A6 - Geospatial/tl_2019_us_county-1/tl_2019_us_county.shp')
+
+votes_for_map <- votes_clean %>% left_join(shape, by = c('FIPS' = 'GEOID'))
+unemploy_for_map <- unemploy_clean %>% left_join(shape, by = c('FIPStxt' = 'GEOID'))
+
+# Three years for California
+votes_2008_CA <- votes_for_map %>% filter(year == 2008, state == "California")
+votes_2012_CA <- votes_for_map %>% filter(year == 2012, state == "California")
+votes_2016_CA <- votes_for_map %>% filter(year == 2016, state == "California")
+
+# Three years for Texas
+votes_2008_TX <- votes_for_map %>% filter(year == 2008, state == "Texas")
+votes_2012_TX <- votes_for_map %>% filter(year == 2012, state == "Texas")
+votes_2016_TX <- votes_for_map %>% filter(year == 2016, state == "Texas")
+
+# Three years for Pennsylvania
+votes_2008_PA <- votes_for_map %>% filter(year == 2008, state == "Pennsylvania")
+votes_2012_PA <- votes_for_map %>% filter(year == 2012, state == "Pennsylvania")
+votes_2016_PA <- votes_for_map %>% filter(year == 2016, state == "Pennsylvania")
+
+# Three years for California
+unemploy_2008_CA <- unemploy_for_map %>% filter(Stabr == "CA") %>% select(-Unemployment_rate_2012, -Unemployment_rate_2016)
+unemploy_2012_CA <- unemploy_for_map %>% filter(Stabr == "CA") %>% select(-Unemployment_rate_2008, -Unemployment_rate_2016)
+unemploy_2016_CA <- unemploy_for_map %>% filter(Stabr == "CA") %>% select(-Unemployment_rate_2008, -Unemployment_rate_2012)
+
+# Three years for Texas
+unemploy_2008_TX <- unemploy_for_map %>% filter(Stabr == "TX") %>% select(-Unemployment_rate_2012, -Unemployment_rate_2016)
+unemploy_2012_TX <- unemploy_for_map %>% filter(Stabr == "TX") %>% select(-Unemployment_rate_2008, -Unemployment_rate_2016)
+unemploy_2016_TX <- unemploy_for_map %>% filter(Stabr == "TX") %>% select(-Unemployment_rate_2008, -Unemployment_rate_2012)
+
+# Three years for Pennsylvania
+unemploy_2008_PA <- unemploy_for_map %>% filter(Stabr == "PA") %>% select(-Unemployment_rate_2012, -Unemployment_rate_2016)
+unemploy_2012_PA <- unemploy_for_map %>% filter(Stabr == "PA") %>% select(-Unemployment_rate_2008, -Unemployment_rate_2016)
+unemploy_2016_PA <- unemploy_for_map %>% filter(Stabr == "PA") %>% select(-Unemployment_rate_2008, -Unemployment_rate_2012)
+
+#### Choropleth panel for California 
+# Votes for California 2008
+
+CAvotes_2008 <- ggplot(data = votes_2008_CA) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(California,2008)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+ theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Votes for California 2012
+
+CAvotes_2012 <- ggplot(data = votes_2012_CA) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(California,2012)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+  
+
+
+# Votes for California 2016
+
+CAvotes_2016 <- ggplot(data = votes_2016_CA) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(California,2016)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+
+# Unemployment for California 2008
+
+CAunemploy_2008 <- ggplot(data = unemploy_2008_CA) +
+  geom_sf(aes(fill = Unemployment_rate_2008, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(California,2008)") +
+  scale_fill_viridis_c(option ="magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title="Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for California 2012
+
+CAunemploy_2012 <- ggplot(data = unemploy_2012_CA) +
+  geom_sf(aes(fill = Unemployment_rate_2012, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(California,2012)") +
+  scale_fill_viridis_c(option = "magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title="Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for California 2016
+
+CAunemploy_2016 <- ggplot(data = unemploy_2016_CA) +
+  geom_sf(aes(fill = Unemployment_rate_2016, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(California,2016)") +
+  scale_fill_viridis_c(option = "magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title = "Unemployment rate"))+
+  theme(plot.title = element_text(size = 18, face = "bold"))
+```
+
+
+```{r fig3, fig.height = 30, fig.width = 25, fig.align = "center", echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+ggarrange(CAvotes_2008,CAunemploy_2008,CAvotes_2012,CAunemploy_2012,CAvotes_2016, CAunemploy_2016,ncol = 2, nrow=3, align = 'hv', widths = c(7,7,7,7,7,7))
+```
+
+
+### **For Texas**
+
+```{r,echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+# Votes for Texas 2008
+TXvotes_2008 <- ggplot(data = votes_2008_TX) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(Texas,2008)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Votes for Texas 2012
+TXvotes_2012 <- ggplot(data = votes_2012_TX) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(Texas,2012)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Votes for Texas 2016
+TXvotes_2016 <- ggplot(data = votes_2016_TX) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(Texas,2016)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for Texas 2008
+TXunemploy_2008 <- ggplot(data = unemploy_2008_TX) +
+  geom_sf(aes(fill = Unemployment_rate_2008, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(Texas,2008)") +
+  scale_fill_viridis_c(option ="magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title="Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for Texas 2012
+TXunemploy_2012 <- ggplot(data = unemploy_2012_TX) +
+  geom_sf(aes(fill = Unemployment_rate_2012, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(Texas,2012)") +
+  scale_fill_viridis_c(option = "magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title="Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for Texas 2016
+TXunemploy_2016 <- ggplot(data = unemploy_2016_TX) +
+  geom_sf(aes(fill = Unemployment_rate_2016, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(Texas,2016)") +
+  scale_fill_viridis_c(option = "magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title = "Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+```
+
+
+```{r fig4, fig.height = 30, fig.width = 25, fig.align = "center",echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+ggarrange(TXvotes_2008,TXunemploy_2008,TXvotes_2012,TXunemploy_2012,TXvotes_2016, TXunemploy_2016,ncol = 2, nrow=3, align = 'hv', widths = c(7,7,7,7,7,7))
+```
+
+
+### **For Pennsylvania**
+
+```{r,echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+# Votes for Pennsylvania 2008
+PAvotes_2008 <- ggplot(data = votes_2008_PA) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(Pennsylvania,2008)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Votes for Pennsylvania 2012
+PAvotes_2012 <- ggplot(data = votes_2012_PA) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(Pennsylvania,2012)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Votes for Pennsylvania 2016
+PAvotes_2016 <- ggplot(data = votes_2016_PA) +
+  geom_sf(aes(fill = percent, geometry = geometry)) +
+  ggtitle('The proportion of vote won by Republican', subtitle = "(Pennsylvania,2016)") +
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for Pennsylvania 2008
+PAunemploy_2008 <- ggplot(data = unemploy_2008_PA) +
+  geom_sf(aes(fill = Unemployment_rate_2008, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(Pennsylvania,2008)") +
+  scale_fill_viridis_c(option ="magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title="Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for Pennsylvania 2012
+PAunemploy_2012 <- ggplot(data = unemploy_2012_PA) +
+  geom_sf(aes(fill = Unemployment_rate_2012, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(Pennsylvania,2012)") +
+  scale_fill_viridis_c(option = "magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title="Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+# Unemployment for Pennsylvania 2016
+PAunemploy_2016 <- ggplot(data = unemploy_2016_PA) +
+  geom_sf(aes(fill = Unemployment_rate_2016, geometry = geometry)) +
+  ggtitle('Unemployment rate', subtitle = "(Pennsylvania,2016)") +
+  scale_fill_viridis_c(option = "magma", alpha = .5) +
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue")) +
+  xlab("Longitude") + ylab("Latitude") +
+  guides(fill = guide_legend(title = "Unemployment rate")) +
+  theme(plot.title = element_text(size = 18, face = "bold"))
+
+```
+
+
+```{r fig5, fig.height = 20, fig.width = 25, fig.align = "center",echo = FALSE,results='hide', warning=FALSE,message=FALSE,fig.align='center'}
+ggarrange(PAvotes_2008,PAunemploy_2008,PAvotes_2012,PAunemploy_2012,PAvotes_2016,PAunemploy_2016,ncol = 2, nrow=3, align = 'hv', widths = c(7,7,7,7,7,7))
+```
+
+$~$
+$~$
+$~$
+$~$
+
+### **Conclusion**
+
+**California**: For California, we could observe that the middle east and south counties have relatively higher proportion of voting rate for democrat. Generally, in CA, higher proportion of voting rate for democrat relates to lower unnemployment rate. There's an outlier in the most south part of CA which has very high unemployment rate.
+
+$~$
+**Texas**: For Texas, counties having higher proportion of voting rate for democrat generally have higher unemployment rate, and these counties concentrate on the east and south part of Texas. In the east side of Texas, there're also some counties with high unemployment rate, but the proportion of voting is not very high in this area.
+
+$~$
+**Pennsylvania**: We could get some interesting findings in Pennsylvania. When we look at voting proportion, counties in the west have relatively higher proportion of voting. However, for the unemoloyment geographical plots, with time goes, PA has higher and higher unemployment rate. Especially in 2016, the unemployment problem runs deep.

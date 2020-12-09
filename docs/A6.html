@@ -11,7 +11,7 @@
 
 
 
-<title>About Me</title>
+<title>Geospatial Visualization</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -308,20 +308,37 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">About Me</h1>
+<h1 class="title toc-ignore">Geospatial Visualization</h1>
 
 </div>
 
 
+<p><span class="math inline">\(~\)</span> In this assignment I will visualize historical US election data and unemployment rates across US counties using choropleths. I will create three 3x2 panels of choropleths, one each for Texas, California and Pennsylvania. The rows will correspond to the years 2008, 2012 and 2016, and the columns will correspond to the percent of the vote received either the Democratic or Republican candidate for president (your choice), and the unemployment rate in that year.</p>
+<p>There are three data used for this assignment:</p>
 <ul>
-<li><strong>Name:</strong> Xin(Jaycee) Hu</li>
-<li><strong>Ocupation:</strong> &quot;Student from Georgetown University&quot;</li>
-<li><strong>Hobbies:</strong> Photography &amp; Netflix &amp; Learning Data science instead of studying for exams</li>
+<li>The file countypres_2000-2016.csv contains the results of each presidential election from 2000 to 2016 by county.(Source: <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ">MIT Election Data and Science Lab, 2018, &quot;County Presidential Election Returns 2000-2016&quot;, Harvard Datavers</a>)</li>
+<li>The file Unemployment.xls contains unemployment rates by county for the years 2000-2019. (Source: <a href="https://www.ers.usda.gov/data-products/county-level-data-sets/download-data/">USDA Economic Research Service, 2020</a>)</li>
+<li>Shapefiles for the US with county boundaries are in tl_2019_us_county-1.zip</li>
 </ul>
-<p>Here is a photo showing my favorite life state.</p>
-<div class="figure">
-<img src="spa%20day%20snooze.jpg" />
-
+<p><span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span></p>
+<div id="for-california" class="section level3">
+<h3><strong>For California</strong></h3>
+<p><img src="A6_files/figure-html/fig3-1.png" width="2400" style="display: block; margin: auto;" /></p>
+</div>
+<div id="for-texas" class="section level3">
+<h3><strong>For Texas</strong></h3>
+<p><img src="A6_files/figure-html/fig4-1.png" width="2400" style="display: block; margin: auto;" /></p>
+</div>
+<div id="for-pennsylvania" class="section level3">
+<h3><strong>For Pennsylvania</strong></h3>
+<p><img src="A6_files/figure-html/fig5-1.png" width="2400" style="display: block; margin: auto;" /></p>
+<p><span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span> <span class="math inline">\(~\)</span></p>
+</div>
+<div id="conclusion" class="section level3">
+<h3><strong>Conclusion</strong></h3>
+<p><strong>California</strong>: For California, we could observe that the middle east and south counties have relatively higher proportion of voting rate for democrat. Generally, in CA, higher proportion of voting rate for democrat relates to lower unnemployment rate. There's an outlier in the most south part of CA which has very high unemployment rate.</p>
+<p><span class="math inline">\(~\)</span> <strong>Texas</strong>: For Texas, counties having higher proportion of voting rate for democrat generally have higher unemployment rate, and these counties concentrate on the east and south part of Texas. In the east side of Texas, there're also some counties with high unemployment rate, but the proportion of voting is not very high in this area.</p>
+<p><span class="math inline">\(~\)</span> <strong>Pennsylvania</strong>: We could get some interesting findings in Pennsylvania. When we look at voting proportion, counties in the west have relatively higher proportion of voting. However, for the unemoloyment geographical plots, with time goes, PA has higher and higher unemployment rate. Especially in 2016, the unemployment problem runs deep.</p>
 </div>
 
 
